@@ -1,6 +1,7 @@
 
 // Generate a Bates distribution of 10 random variables.
 var values = d3.range(1000).map(d3.random.bates(10));
+//var values = [];
 
 // A formatter for counts.
 var formatCount = d3.format(",.0f");
@@ -29,6 +30,7 @@ var xAxis = d3.svg.axis()
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
+	.on("mousemove",mousemove)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -55,3 +57,70 @@ svg.append("g")
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
 
+function mousemove() {
+  var point = d3.mouse(this),
+      //node = {x: point[0], y: point[1]},
+	  node = point[0]/width,
+	  n = values.push(node);
+	  
+	  data = d3.layout.histogram()
+    .bins(x.ticks(20))
+    (values);
+	
+	  redraw();
+}
+
+function redraw() {
+	
+svg.selectAll(".bar")
+    .data(data)
+	.transition()
+    .attr("class", "bar")
+    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+	
+bar.append("rect")
+    .attr("x", 1)
+    .attr("width", x(data[0].dx) - 1)
+    .attr("height", function(d) { return height - y(d.y); });
+
+bar.append("text")
+    .attr("dy", ".75em")
+    .attr("y", 6)
+    .attr("x", x(data[0].dx) / 2)
+    .attr("text-anchor", "middle")
+    .text(function(d) { return formatCount(d.y); });
+}
+
+
+function mousedown() {
+  var point = d3.mouse(this),
+      node = {x: point[0], y: point[1]},
+      n = nodes.push(node);
+
+  // add links to any nearby nodes
+  nodes.forEach(function(target) {
+    var x = target.x - node.x,
+        y = target.y - node.y;
+    if (Math.sqrt(x * x + y * y) < 30) {
+      links.push({source: node, target: target});
+    }
+  });
+
+  restart();
+}
+
+function restart() {
+  link = link.data(links);
+
+  link.enter().insert("line", ".node")
+      .attr("class", "link");
+
+  node = node.data(nodes);
+
+  node.enter().insert("circle", ".cursor")
+      .attr("class", "node")
+      .attr("r", 5)
+      .call(force.drag);
+
+  force.start();
+}
