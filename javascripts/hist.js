@@ -1,7 +1,12 @@
 
 // Generate a Bates distribution of 10 random variables.
+<<<<<<< HEAD
 var values = d3.range(1000).map(d3.random.bates(10));
 //var values = [];
+=======
+//var values = d3.range(1000).map(d3.random.bates(10));
+var values = [];
+>>>>>>> origin/master
 
 // A formatter for counts.
 var formatCount = d3.format(",.0f");
@@ -60,6 +65,7 @@ svg.append("g")
 function mousemove() {
   var point = d3.mouse(this),
       //node = {x: point[0], y: point[1]},
+<<<<<<< HEAD
 	  node = point[0]/width,
 	  n = values.push(node);
 	  
@@ -78,6 +84,28 @@ svg.selectAll(".bar")
     .attr("class", "bar")
     .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
 	
+=======
+	  node = point[0],
+	  n = values.push(node);
+	  drawhist();
+}
+
+function drawhist() {
+var data = d3.layout.histogram()
+    .bins(x.ticks(20))
+    (values);
+
+var y = d3.scale.linear()
+    .domain([0, d3.max(data, function(d) { return d.y; })])
+    .range([height, 0]);
+	
+var bar = svg.selectAll(".bar")
+    .data(data)
+  .enter().append("g")
+    .attr("class", "bar")
+    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+>>>>>>> origin/master
 bar.append("rect")
     .attr("x", 1)
     .attr("width", x(data[0].dx) - 1)
@@ -89,6 +117,15 @@ bar.append("text")
     .attr("x", x(data[0].dx) / 2)
     .attr("text-anchor", "middle")
     .text(function(d) { return formatCount(d.y); });
+<<<<<<< HEAD
+=======
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+>>>>>>> origin/master
 }
 
 
@@ -109,6 +146,19 @@ function mousedown() {
   restart();
 }
 
+<<<<<<< HEAD
+=======
+function tick() {
+  link.attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+
+  node.attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; });
+}
+
+>>>>>>> origin/master
 function restart() {
   link = link.data(links);
 
